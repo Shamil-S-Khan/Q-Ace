@@ -1,0 +1,7 @@
+# Ignore large files and dataset
+fer2013/
+*.zip
+*.npy
+*.pth
+__pycache__/
+
