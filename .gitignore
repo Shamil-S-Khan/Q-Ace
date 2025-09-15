@@ -1,0 +1,22 @@
+# Ignore virtual environment
+.venv/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore data and model files
+*.npy
+*.pkl
+*.keras
+*.pth
+*.csv
+
+# Ignore upload folders
+uploads/
+
+# Ignore processed data
+processed_mfcc/
+
+# Ignore model folders
+models/

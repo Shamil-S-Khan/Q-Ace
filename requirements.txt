@@ -1,0 +1,15 @@
+Flask
+tensorflow
+librosa
+pyaudio
+sounddevice
+moviepy
+torch
+torchvision
+scikit-learn
+numpy
+pandas
+opencv-python
+SpeechRecognitionSpeechRecognition==3.14.3 
+opencv-python==4.12.0.88 
+librosa==0.11.0 
