@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Interview Results</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Interview Results</h1>
+        <h2>Final Rating: <span class="badge badge-primary">{{ final_rating }}</span></h2>
+        <hr>
+
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h3>Areas for Improvement</h3>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for feedback_item in improvement_feedback %}
+                        <li class="list-group-item">{{ feedback_item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <hr>
+
+        <h2>Detailed Breakdown</h2>
+        {% for result in results %}
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5>Question: {{ result.question }}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Your Answer:</strong> {{ result.answer_text }}</p>
+                <p><strong>Facial Emotion:</strong> {{ result.facial_emotion }}</p>
+                <p><strong>Vocal Emotion:</strong> {{ result.vocal_emotion }}</p>
+                <p><strong>Answer Quality:</strong> {{ result.answer_quality }}</p>
+                <p><strong>Score:</strong> {{ result.score }}</p>
+            </div>
+        </div>
+        {% endfor %}
+        <a href="/" class="btn btn-primary">Try Again</a>
+    </div>
+</body>
+</html>

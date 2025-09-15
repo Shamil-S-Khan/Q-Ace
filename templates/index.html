@@ -1,121 +1,15 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Interview Coach</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        #container {
-            max-width: 800px;
-            margin: auto;
-        }
-        #questions {
-            margin-bottom: 20px;
-        }
-        #video-container {
-            border: 1px solid black;
-            width: 640px;
-            height: 480px;
-            margin-bottom: 10px;
-        }
-        #controls button {
-            padding: 10px 20px;
-            font-size: 16px;
-        }
-        #result {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
-    </style>
+    <title>Integrated Career Coach</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <div id="container">
-        <h1>AI Interview Coach</h1>
-        <div id="questions">
-            <h2>Interview Questions</h2>
-            <ul>
-                {% for question in questions %}
-                    <li>{{ question }}</li>
-                {% endfor %}
-            </ul>
-            <p>Select a question and click "Start Recording" to answer.</p>
-        </div>
-
-        <video id="video-container" width="640" height="480" autoplay muted></video>
-        <div id="controls">
-            <button id="start-btn">Start Recording</button>
-            <button id="stop-btn" disabled>Stop Recording</button>
-        </div>
-
-        <div id="result">
-            <h3>Your Rating</h3>
-            <p>Your results will appear here.</p>
-        </div>
+    <div class="container text-center mt-5">
+        <h1>Welcome to the Integrated Career Coach</h1>
+        <p>Click the button below to start your mock interview.</p>
+        <a href="/start" class="btn btn-primary">Start Interview</a>
     </div>
-
-    <script>
-        const startBtn = document.getElementById('start-btn');
-        const stopBtn = document.getElementById('stop-btn');
-        const videoElement = document.getElementById('video-container');
-        const resultElement = document.getElementById('result');
-
-        let mediaRecorder;
-        let recordedChunks = [];
-
-        startBtn.addEventListener('click', async () => {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            videoElement.srcObject = stream;
-            mediaRecorder = new MediaRecorder(stream);
-
-            mediaRecorder.ondataavailable = (event) => {
-                if (event.data.size > 0) {
-                    recordedChunks.push(event.data);
-                }
-            };
-
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(recordedChunks, {
-                    type: 'video/webm'
-                });
-                recordedChunks = [];
-                const formData = new FormData();
-                formData.append('video', blob, 'recording.webm');
-
-                fetch('/record', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    resultElement.innerHTML = `<h3>Your Rating</h3>
-                        <p><strong>Final Rating: ${data.final_rating}</strong></p>
-                        <p>Facial Emotion: ${data.facial_emotion}</p>
-                        <p>Vocal Emotion: ${data.vocal_emotion}</p>
-                        <p>Answer Quality: ${data.answer_quality}</p>
-                        <p>Transcribed Answer: ${data.answer_text}</p>`;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    resultElement.innerHTML = `<p>An error occurred while processing your response.</p>`;
-                });
-            };
-
-            mediaRecorder.start();
-            startBtn.disabled = true;
-            stopBtn.disabled = false;
-        });
-
-        stopBtn.addEventListener('click', () => {
-            mediaRecorder.stop();
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-        });
-    </script>
 </body>
 </html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Question {{ question_number }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header">
+                <h2>Question {{ question_number }} of 15</h2>
+            </div>
+            <div class="card-body">
+                <p class="lead">{{ question_text }}</p>
+                <div id="timer" class="alert alert-info">Time remaining: <span id="time">40</span> seconds</div>
+                <div id="thinking-timer" class="alert alert-warning">Thinking time: <span id="thinking-time">20</span> seconds</div>
+                <button id="start-answering" class="btn btn-primary">Start Answering</button>
+                <button id="stop-recording" class="btn btn-danger" disabled>End Answer</button>
+                <div id="recording-status" class="mt-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questionNumber = {{ question_number }};
+        const timeDisplay = document.getElementById('time');
+        const thinkingTimeDisplay = document.getElementById('thinking-time');
+        const startAnsweringBtn = document.getElementById('start-answering');
+        const stopRecordingBtn = document.getElementById('stop-recording');
+        const recordingStatus = document.getElementById('recording-status');
+        
+        let timer;
+        let thinkingTimer;
+        let mediaRecorder;
+        let chunks = [];
+
+        function startThinkingTimer() {
+            let timeLeft = 20;
+            thinkingTimeDisplay.textContent = timeLeft;
+            thinkingTimer = setInterval(() => {
+                timeLeft--;
+                thinkingTimeDisplay.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(thinkingTimer);
+                    startAnsweringBtn.click();
+                }
+            }, 1000);
+        }
+
+        function startRecordingTimer() {
+            let timeLeft = 40;
+            timeDisplay.textContent = timeLeft;
+            timer = setInterval(() => {
+                timeLeft--;
+                timeDisplay.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    stopRecordingBtn.click();
+                }
+            }, 1000);
+        }
+
+        startAnsweringBtn.addEventListener('click', () => {
+            clearInterval(thinkingTimer);
+            thinkingTimeDisplay.parentElement.style.display = 'none';
+            startAnsweringBtn.disabled = true;
+            stopRecordingBtn.disabled = false;
+            recordingStatus.textContent = 'Recording...';
+            
+            navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+                    startRecordingTimer();
+
+                    mediaRecorder.ondataavailable = e => chunks.push(e.data);
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(chunks, { type: 'video/webm' });
+                        chunks = [];
+                        const formData = new FormData();
+                        formData.append('video', blob);
+
+                        fetch('/record', {
+                            method: 'POST',
+                            body: formData
+                        }).then(response => response.json())
+                          .then(data => {
+                              if(data.status === 'success') {
+                                  window.location.href = data.next_url;
+                              }
+                          });
+                    };
+                });
+        });
+
+        stopRecordingBtn.addEventListener('click', () => {
+            clearInterval(timer);
+            mediaRecorder.stop();
+            stopRecordingBtn.disabled = true;
+            recordingStatus.textContent = 'Processing...';
+        });
+
+        window.onload = () => {
+            startThinkingTimer();
+        };
+    </script>
+</body>
+</html>
